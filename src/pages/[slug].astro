@@ -1,0 +1,18 @@
+---
+// Dynamic route: generates one static page per entry in pages.json
+// — Max
+
+import FunnelPage from '../layouts/FunnelPage.astro';
+import pages from '../data/pages.json';
+
+export function getStaticPaths() {
+  return pages.map(page => ({
+    params: { slug: page.slug },
+    props: { page }
+  }));
+}
+
+const { page } = Astro.props;
+---
+
+<FunnelPage page={page} />

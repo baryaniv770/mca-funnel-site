@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://yournextfund.com/sitemap-index.xml
