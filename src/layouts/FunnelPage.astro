@@ -6,7 +6,7 @@ const { page } = Astro.props;
 const { industry, city, funding, title, metaDesc, h1, faqSection, stats } = page;
 
 // Lead form endpoint — posts to your existing apply flow
-const APPLY_URL = 'https://funding.yournextfund.com/apply';
+const APPLY_URL = 'https://yournextfund.com/api/apply';
 ---
 
 <!DOCTYPE html>
@@ -156,7 +156,7 @@ const APPLY_URL = 'https://funding.yournextfund.com/apply';
   <header>
     <div class="header-inner">
       <a href="https://funding.yournextfund.com" class="logo">Your<span>Next</span>Fund</a>
-      <a href="https://funding.yournextfund.com/apply" class="nav-link">Apply →</a>
+      <a href="https://yournextfund.com/apply" class="nav-link">Apply →</a>
     </div>
   </header>
 
@@ -363,7 +363,7 @@ const APPLY_URL = 'https://funding.yournextfund.com/apply';
       <p style="margin-top:8px; font-size:14px;">The first AI-powered funding desk.</p>
       <div class="footer-links">
         <a href="https://funding.yournextfund.com">Home</a>
-        <a href="https://funding.yournextfund.com/apply">Apply</a>
+        <a href="https://yournextfund.com/apply">Apply</a>
         <a href={`https://funding.yournextfund.com/${industry.slug}-mca-${city.slug}/`}>MCA for {industry.name} in {city.name}</a>
         <a href={`https://funding.yournextfund.com/${industry.slug}-working-capital-${city.slug}/`}>Working Capital for {industry.name} in {city.name}</a>
         <a href={`https://funding.yournextfund.com/${industry.slug}-line-of-credit-${city.slug}/`}>Line of Credit for {industry.name} in {city.name}</a>
@@ -375,19 +375,25 @@ const APPLY_URL = 'https://funding.yournextfund.com/apply';
     </div>
   </footer>
 
-  <!-- Conversion tracking (add your IDs) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <!-- Google Ads + Analytics conversion tracking — Max -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18319278108"></script>
   <script set:html={`
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX', {
+    gtag('config', 'AW-18319278108', {
       page_path: '/${page.slug}/',
       page_title: ${JSON.stringify(title)}
     });
 
-    // Form submit tracking
+    // Form submit tracking — sends conversion to Google Ads
     document.getElementById('lead-form')?.addEventListener('submit', function(e) {
+      gtag('event', 'conversion', {
+        'send_to': 'AW-18319278108/LEAD_FORM',
+        'value': 50.0,
+        'currency': 'USD',
+        'transaction_id': '${page.slug}_' + Date.now()
+      });
       gtag('event', 'generate_lead', {
         event_category: 'form_submit',
         event_label: '${page.slug}',
