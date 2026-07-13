@@ -1,0 +1,19 @@
+---
+// Index page — redirects to a high-converting funnel page
+// — Max
+
+const redirectTo = '/restaurant-mca-new-york-ny/';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="refresh" content={`0; url=${redirectTo}`} />
+  <title>YourNextFund — AI-Powered Business Funding</title>
+  <script is:inline set:html={`window.location.href = '${redirectTo}';`} />
+</head>
+<body>
+  <p>Redirecting to <a href={redirectTo}>YourNextFund</a>...</p>
+</body>
+</html>

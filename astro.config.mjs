@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://yournextfund.com',
+  site: 'https://funding.yournextfund.com',
   output: 'static',
   integrations: [
     sitemap({

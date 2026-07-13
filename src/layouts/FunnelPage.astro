@@ -6,7 +6,7 @@ const { page } = Astro.props;
 const { industry, city, funding, title, metaDesc, h1, faqSection, stats } = page;
 
 // Lead form endpoint — posts to your existing apply flow
-const APPLY_URL = 'https://yournextfund.com/apply';
+const APPLY_URL = 'https://funding.yournextfund.com/apply';
 ---
 
 <!DOCTYPE html>
@@ -17,12 +17,12 @@ const APPLY_URL = 'https://yournextfund.com/apply';
   <title>{title}</title>
   <meta name="description" content={metaDesc} />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href={`https://yournextfund.com/${page.slug}/`} />
+  <link rel="canonical" href={`https://funding.yournextfund.com/${page.slug}/`} />
 
   <!-- Open Graph -->
   <meta property="og:title" content={title} />
   <meta property="og:description" content={metaDesc} />
-  <meta property="og:url" href={`https://yournextfund.com/${page.slug}/`} />
+  <meta property="og:url" href={`https://funding.yournextfund.com/${page.slug}/`} />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="YourNextFund" />
 
@@ -35,7 +35,7 @@ const APPLY_URL = 'https://yournextfund.com/apply';
     provider: {
       '@type': 'Organization',
       name: 'YourNextFund',
-      url: 'https://yournextfund.com',
+      url: 'https://funding.yournextfund.com',
       telephone: '+1-800-000-0000'
     },
     areaServed: {
@@ -63,6 +63,9 @@ const APPLY_URL = 'https://yournextfund.com/apply';
       }
     }))
   })} />
+
+  <!-- Google Site Verification - replace with your code -->
+  <!-- <meta name="google-site-verification" content="REPLACE_WITH_YOUR_CODE" /> -->
 
   <style is:global>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -152,8 +155,8 @@ const APPLY_URL = 'https://yournextfund.com/apply';
   <!-- Header -->
   <header>
     <div class="header-inner">
-      <a href="https://yournextfund.com" class="logo">Your<span>Next</span>Fund</a>
-      <a href="https://yournextfund.com/apply" class="nav-link">Apply →</a>
+      <a href="https://funding.yournextfund.com" class="logo">Your<span>Next</span>Fund</a>
+      <a href="https://funding.yournextfund.com/apply" class="nav-link">Apply →</a>
     </div>
   </header>
 
@@ -359,11 +362,11 @@ const APPLY_URL = 'https://yournextfund.com/apply';
       <div class="logo">Your<span style="color:#0066ff">Next</span>Fund</div>
       <p style="margin-top:8px; font-size:14px;">The first AI-powered funding desk.</p>
       <div class="footer-links">
-        <a href="https://yournextfund.com">Home</a>
-        <a href="https://yournextfund.com/apply">Apply</a>
-        <a href={`https://yournextfund.com/${industry.slug}-mca-${city.slug}/`}>MCA for {industry.name} in {city.name}</a>
-        <a href={`https://yournextfund.com/${industry.slug}-working-capital-${city.slug}/`}>Working Capital for {industry.name} in {city.name}</a>
-        <a href={`https://yournextfund.com/${industry.slug}-line-of-credit-${city.slug}/`}>Line of Credit for {industry.name} in {city.name}</a>
+        <a href="https://funding.yournextfund.com">Home</a>
+        <a href="https://funding.yournextfund.com/apply">Apply</a>
+        <a href={`https://funding.yournextfund.com/${industry.slug}-mca-${city.slug}/`}>MCA for {industry.name} in {city.name}</a>
+        <a href={`https://funding.yournextfund.com/${industry.slug}-working-capital-${city.slug}/`}>Working Capital for {industry.name} in {city.name}</a>
+        <a href={`https://funding.yournextfund.com/${industry.slug}-line-of-credit-${city.slug}/`}>Line of Credit for {industry.name} in {city.name}</a>
       </div>
       <p class="footer-disclaimer">
         © 2026 YourNextFund. All rights reserved. Funding subject to approval. Not available in all states.
