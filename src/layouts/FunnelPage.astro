@@ -5,8 +5,14 @@
 const { page } = Astro.props;
 const { industry, city, funding, title, metaDesc, h1, faqSection, stats } = page;
 
-// Lead form endpoint — posts to your existing apply flow
-const APPLY_URL = 'https://yournextfund.com/api/apply';
+// Lead form endpoint — posts to OUR OWN /api/apply Pages Function on this domain.
+// The old absolute URL (https://yournextfund.com/api/apply, a Netlify function backed by
+// the YNF CRM) has been 502ing since the CRM intake broke — every lead was being lost.
+// Our function captures the lead locally (KV) and best-effort forwards upstream.
+// — Steve, 2026-10-15
+const APPLY_URL = '/api/apply';
+// The full application page on the main site (for CTA links — the API is POST-only).
+const APPLY_PAGE = 'https://yournextfund.com/apply';
 ---
 
 <!DOCTYPE html>
@@ -203,6 +209,7 @@ const APPLY_URL = 'https://yournextfund.com/api/apply';
           <input type="hidden" name="city" value={`${city.name}, ${city.state}`} />
           <input type="hidden" name="funding_type" value={funding.name} />
           <input type="hidden" name="lead_type" value="programmatic_seo" />
+          <input type="text" name="company_website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;" />
 
           <div class="form-row">
             <input type="text" name="business_name" placeholder="Business name" required />
@@ -352,7 +359,7 @@ const APPLY_URL = 'https://yournextfund.com/api/apply';
     <div class="container">
       <h2>Stop chasing lenders. Let your AI do it.</h2>
       <p>Upload once and get your best offer — no hard credit pull, no obligation.</p>
-      <a href={APPLY_URL} class="btn">Get my best offer →</a>
+      <a href={APPLY_PAGE} class="btn">Get my best offer →</a>
     </div>
   </section>
 
@@ -387,7 +394,7 @@ const APPLY_URL = 'https://yournextfund.com/api/apply';
     });
 
     // Form submit tracking — sends conversion to Google Ads
-    document.getElementById('lead-form')?.addEventListener('submit', function(e) {
+    document.getElementById('lead-form')?.addEventListener('submit', function() {
       gtag('event', 'conversion', {
         'send_to': 'AW-18319278108/LEAD_FORM',
         'value': 50.0,
@@ -400,6 +407,51 @@ const APPLY_URL = 'https://yournextfund.com/api/apply';
         value: 1
       });
     });
+
+    // Lead capture — submit via fetch to OUR /api/apply (same origin).
+    // The endpoint always stores the lead locally first (KV), then best-effort
+    // forwards to the yournextfund.com CRM pipeline. No more lost leads.
+    // — Steve, 2026-10-15
+    (function() {
+      const form = document.getElementById('lead-form');
+      if (!form) return;
+      const wrap = form.closest('.lead-form-wrap');
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        if (!form.reportValidity()) return;
+        const button = form.querySelector('button[type="submit"]');
+        const original = button.innerHTML;
+        button.disabled = true;
+        button.textContent = 'Getting your offer…';
+        try {
+          const res = await fetch(form.action || '/api/apply', {
+            method: 'POST',
+            body: new FormData(form),
+            credentials: 'same-origin'
+          });
+          const result = await res.json().catch(() => ({}));
+          if (!res.ok || !result.ok) throw new Error(result.error || ('HTTP ' + res.status));
+          if (wrap) {
+            wrap.innerHTML =
+              '<h3>✔ Thank you, we got it!</h3>' +
+              '<p class="sub">Your request is in. Our funding team will reach out within 24 hours ' +
+              'with offers from 100+ funders — no hard credit pull, no obligation.</p>' +
+              '<p class="sub" style="margin-top:10px;">Reference: <code>' + (result.leadId || '') + '</code></p>';
+          }
+        } catch (err) {
+          // Submission failed — restore the form so the visitor can retry.
+          button.disabled = false;
+          button.innerHTML = original;
+          if (wrap && !document.getElementById('form-error')) {
+            const msg = document.createElement('p');
+            msg.id = 'form-error';
+            msg.style.cssText = 'color:#c0392b;font-size:13px;margin-top:10px;';
+            msg.textContent = 'We could not submit right now. Please try again, or call us directly.';
+            form.appendChild(msg);
+          }
+        }
+      });
+    })();
   `} />
 
 </body>

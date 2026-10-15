@@ -1,6 +1,51 @@
 # MCA Funnel Site — Paid Ads Strategy for Hot Leads
 # — Max
 
+## ⚠️ LEAD CAPTURE FIX (2026-10-15 — Steve)
+
+The old lead flow (all 4,800 forms POSTing straight to `https://yournextfund.com/api/apply`) is BROKEN —
+that Netlify endpoint returns **502 "Unable to save right now."** on every submission (the YNF CRM
+intake at crm.yournextfund.com rejects the calls). Every lead was being LOST.
+
+**The fix (deployed in this repo):**
+
+- `functions/api/apply.js` — Cloudflare Pages Function on THIS site (`/api/apply`, same origin):
+  1. ALWAYS stores the lead locally in a Cloudflare **KV namespace (`LEADS` binding)** first
+  2. Best-effort forwards to yournextfund.com/api/apply (so the CRM pipeline resumes automatically
+     when it's repaired — forward outcome is recorded on the stored lead)
+  3. Returns `200 {ok:true, leadId, captured, forwarded}`
+- `functions/api/leads.js` — retrieval: `GET /api/leads?limit=50` with header `X-Leads-Key: <LEADS_ADMIN_KEY>`
+- Form JS in `src/layouts/FunnelPage.astro` now fetch-POSTs to the local `/api/apply` and shows a
+  thank-you state instead of navigating to raw JSON
+- Honeypot field `company_website` blocks bot spam (silently accepted, not stored)
+- `public/robots.txt` sitemap fixed: now points to `https://funding.yournextfund.com/sitemap-index.xml`
+  (the old reference to yournextfund.com/sitemap-index.xml was a 404)
+
+**Deploy (needs a Cloudflare API token with Pages:Edit + KV:Edit):**
+
+```bash
+export CLOUDFLARE_API_TOKEN="..."
+# creates the KV namespace, writes wrangler.toml, sets the secret, deploys, runs QA:
+bash scripts/deploy-lead-fix.sh
+```
+
+**Reading captured leads:**
+
+```bash
+curl "https://funding.yournextfund.com/api/leads?limit=50" -H "X-Leads-Key: <LEADS_ADMIN_KEY>"
+# or
+npx wrangler kv key list --binding LEADS --prefix "lead:"   # from the repo root with wrangler.toml present
+```
+
+**Root cause of the original 502 (still open, needs the Netlify/CRM owner):**
+yournextfund.com (Netlify site) /api/apply + /api/application-handoff call the YNF CRM
+(crm.yournextfund.com, a Vercel+Supabase app) with HMAC-signed intake requests
+(X-Intake-Timestamp / X-Intake-Signature). The CRM's `/api/public/leads` now returns 401 Unauthorized
+for everything — the shared intake secret on one side is missing/rotated. Fix requires re-syncing the
+intake secret between the Netlify site env and the CRM (whoever owns those accounts).
+
+---
+
 ## What We Built
 
 - **4,800 static pages** targeting 30 industries × 40 cities × 4 funding types
